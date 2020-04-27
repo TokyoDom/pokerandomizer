@@ -1,0 +1,33 @@
+.randomizer {
+  margin-top: 5vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 36px;
+}
+
+.title {
+  text-shadow: 0 0 5px #00a9c7;
+  -webkit-text-stroke: 1px;
+  -webkit-text-stroke-color: #00a9c7;
+}
+
+.team-options {
+  display: flex;
+}
+
+.team-options div {
+  margin: 0 8px;
+}
+
+.team-options div select, .team-options div select:focus {
+  background-color: transparent;
+  color: white;
+}
+
+.team-options div select option {
+  background-color: rgb(14, 14, 14);
+  color: white;
+}
