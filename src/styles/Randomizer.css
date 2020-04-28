@@ -1,14 +1,13 @@
 .randomizer {
-  margin-top: 5vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   color: white;
-  font-size: 36px;
 }
 
 .title {
+  font-size: 36px;
   text-shadow: 0 0 5px #00a9c7;
   -webkit-text-stroke: 1px;
   -webkit-text-stroke-color: #00a9c7;
@@ -16,10 +15,18 @@
 
 .team-options {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 16px;
 }
 
 .team-options div {
-  margin: 0 8px;
+  margin: 8px;
+  width: 125px;
+}
+
+.team-options button {
+  margin: 8px;
 }
 
 .team-options div select, .team-options div select:focus {
@@ -27,7 +34,25 @@
   color: white;
 }
 
+.team-options div select:hover {
+  cursor: pointer;
+}
+
 .team-options div select option {
   background-color: rgb(14, 14, 14);
   color: white;
+}
+
+.btn-outline-primary {
+  box-shadow: 0 0 10px #b5e9f6, inset 0 0 5px #b5e9f6;
+}
+
+.btn-outline-danger {
+  box-shadow: 0 0 10px #ff8a8a, inset 0 0 5px #ff8a8a;
+}
+
+@media only screen and (max-width: 700px) {
+  .title {
+    font-size: 5vw;
+  }
 }

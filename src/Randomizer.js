@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Form, FormGroup, Input } from "reactstrap";
-import "./Randomizer.css";
+import React, { useState, useRef } from "react";
+import { Form, FormGroup, Input, Button } from "reactstrap";
+import Team from "./Team";
+import "./styles/Randomizer.css";
 
 const gens = ["SS", "SM", "XY", "BW", "DP", "RS", "GS", "RB"];
 const tiers = [
@@ -20,9 +21,7 @@ function Randomizer() {
   const [tier, setTier] = useState("OU");
   const [weight, setWeight] = useState("Standard");
 
-  useEffect(() => {
-    console.log(generation, tier, weight);
-  }, [generation, tier, weight]);
+  const teamRef = useRef();
 
   const generateOptions = () => {
     return (
@@ -74,6 +73,14 @@ function Randomizer() {
             ))}
           </Input>
         </FormGroup>
+        <Button outline color="primary" onClick={e => {
+          e.preventDefault();
+          teamRef.current.getTeam();
+          }}>Randomize</Button>
+        <Button outline color="danger" onClick={e => {
+          e.preventDefault();
+          teamRef.current.exportTeam();
+          }}>Export</Button>
       </Form>
     );
   };
@@ -82,6 +89,7 @@ function Randomizer() {
     <section className="randomizer">
       <div className="title">RANDOM POKÉMON TEAM GENERATOR</div>
       {generateOptions()}
+      <Team gen={generation} tier={tier} weight={weight} ref={teamRef}/>
     </section>
   );
 }
