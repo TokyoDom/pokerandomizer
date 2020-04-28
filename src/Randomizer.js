@@ -1,5 +1,10 @@
 import React, { useState, useRef } from "react";
 import { Form, FormGroup, Input, Button } from "reactstrap";
+import Modal from "@material-ui/core/Modal";
+import Card from "@material-ui/core/Card";
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from "@material-ui/core/CardContent";
+import TextField from "@material-ui/core/TextField";
 import Team from "./Team";
 import "./styles/Randomizer.css";
 
@@ -20,6 +25,9 @@ function Randomizer() {
   const [generation, setGeneration] = useState("SS");
   const [tier, setTier] = useState("OU");
   const [weight, setWeight] = useState("Standard");
+  const [exTeam, setExTeam] = useState("");
+
+  const [modal, setModal] = useState(false);
 
   const teamRef = useRef();
 
@@ -73,14 +81,27 @@ function Randomizer() {
             ))}
           </Input>
         </FormGroup>
-        <Button outline color="primary" onClick={e => {
-          e.preventDefault();
-          teamRef.current.getTeam();
-          }}>Randomize</Button>
-        <Button outline color="danger" onClick={e => {
-          e.preventDefault();
-          teamRef.current.exportTeam();
-          }}>Export</Button>
+        <Button
+          outline
+          color="primary"
+          onClick={e => {
+            e.preventDefault();
+            teamRef.current.getTeam();
+          }}
+        >
+          Randomize
+        </Button>
+        <Button
+          outline
+          color="danger"
+          onClick={e => {
+            e.preventDefault();
+            setExTeam(teamRef.current.exportTeam());
+            setModal(true);
+          }}
+        >
+          Export
+        </Button>
       </Form>
     );
   };
@@ -89,7 +110,15 @@ function Randomizer() {
     <section className="randomizer">
       <div className="title">RANDOM POKÉMON TEAM GENERATOR</div>
       {generateOptions()}
-      <Team gen={generation} tier={tier} weight={weight} ref={teamRef}/>
+      <Modal open={modal} onClose={e => setModal(false)}>
+        <Card style={{overflow: "scroll"}} className="card">
+          <CardHeader title="Export"/>
+          <CardContent>
+            <TextField variant="outlined" multiline value={exTeam} style={{width: "100%"}}/>
+          </CardContent>
+        </Card>
+      </Modal>
+      <Team gen={generation} tier={tier} weight={weight} ref={teamRef} />
     </section>
   );
 }

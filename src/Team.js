@@ -69,7 +69,7 @@ function Team({ gen, tier, weight }, ref) {
       if (!newDex.includes(list[count].oob.dex_number)) {
         //check if dex num is used already
         const result = await axios(
-          `http://192.168.1.2:5000/gen/SS/${tier}/${list[count].name}`
+          `http://192.168.1.2:5000/gen/${gen}/${tier}/${list[count].name}`
         );
         const data = result.data;
         if (data) {
@@ -100,18 +100,20 @@ function Team({ gen, tier, weight }, ref) {
       let evString = "";
       for (const ev in evs) {
         if (evs[ev] !== 0) {
-          evString += `${evs[ev]} ${ev} / `;
+          evString += `/ ${evs[ev]} ${ev} `;
         }
       }
+      evString = evString.replace("/", "");
 
       let ivString = "";
       if (poke.ivconfigs.length > 0) {
         const ivs = poke.ivconfigs[0];
         for (const iv in ivs) {
           if (ivs[iv] !== 31) {
-            ivString += `${ivs[iv]} ${iv} / `;
+            ivString += `/ ${ivs[iv]} ${iv} `;
           }
         }
+        ivString = ivString.replace("/", "");
       }
 
       let moves = "";
@@ -122,26 +124,26 @@ function Team({ gen, tier, weight }, ref) {
 
       let set;
       if (ivString !== "") {
-        set = `
-        ${name} @ ${item}
-        Ability: ${ability}
-        EVs: ${evString}
-        ${nature} Nature
-        IVs: ${ivString}
-        ${moves}`;
+        set = `${name} @ ${item}
+Ability: ${ability}
+EVs:${evString}
+${nature} Nature
+IVs:${ivString}
+${moves}
+`;
       } else {
-        set = `
-      ${name} @ ${item}
-      Ability: ${ability}
-      EVs: ${evString}
-      ${nature} Nature
-      ${moves}`;
+        set = `${name} @ ${item}
+Ability: ${ability}
+EVs:${evString}
+${nature} Nature
+${moves}
+`;
       }
 
       exTeam += set;
     });
 
-    console.log(exTeam);
+    return exTeam;
   };
 
   return (
