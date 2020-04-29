@@ -1943,7 +1943,7 @@ const ssData = [
     height: 1.6,
     types: ["Ghost", "Poison"],
     abilities: ["Levitate"],
-    formats: ["NUBL"],
+    formats: ["NUBL", "RU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 93,
@@ -2069,7 +2069,7 @@ const ssData = [
     height: 1.3,
     types: ["Water"],
     abilities: ["Hyper Cutter", "Sheer Force", "Shell Armor"],
-    formats: ["NUBL"],
+    formats: ["NUBL", "RU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 99,
@@ -2720,7 +2720,7 @@ const ssData = [
     height: 6.5,
     types: ["Water", "Flying"],
     abilities: ["Intimidate", "Moxie"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 130,
@@ -3674,7 +3674,7 @@ const ssData = [
     height: 1.6,
     types: ["Normal", "Flying"],
     abilities: ["Insomnia", "Keen Eye", "Tinted Lens"],
-    formats: ["PUBL"],
+    formats: ["PUBL", "NU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 164,
@@ -4640,7 +4640,7 @@ const ssData = [
     height: 0.9,
     types: ["Dark", "Ice"],
     abilities: ["Inner Focus", "Keen Eye", "Pickpocket"],
-    formats: ["NUBL"],
+    formats: ["NUBL", "RU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 215,
@@ -6404,7 +6404,7 @@ const ssData = [
     height: 1.3,
     types: ["Grass", "Dark"],
     abilities: ["Chlorophyll", "Early Bird", "Pickpocket"],
-    formats: ["RUBL"],
+    formats: ["RUBL", "UU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 275,
@@ -7370,7 +7370,7 @@ const ssData = [
     height: 1.1,
     types: ["Water", "Dark"],
     abilities: ["Adaptability", "Hyper Cutter", "Shell Armor"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 342,
@@ -10604,7 +10604,7 @@ const ssData = [
     height: 1.1,
     types: ["Dark", "Ice"],
     abilities: ["Pickpocket", "Pressure"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 461,
@@ -10793,7 +10793,7 @@ const ssData = [
     height: 2.5,
     types: ["Ice", "Ground"],
     abilities: ["Oblivious", "Snow Cloak", "Thick Fat"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 473,
@@ -12725,7 +12725,7 @@ const ssData = [
     height: 0.9,
     types: ["Psychic", "Flying"],
     abilities: ["Klutz", "Simple", "Unaware"],
-    formats: ["PUBL"],
+    formats: ["PUBL", "NU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 528,
@@ -13250,7 +13250,7 @@ const ssData = [
     height: 1.4,
     types: ["Psychic", "Flying"],
     abilities: ["Magic Guard", "Tinted Lens", "Wonder Skin"],
-    formats: ["RUBL"],
+    formats: ["RUBL", "UU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 561,
@@ -14384,7 +14384,7 @@ const ssData = [
     height: 0.3,
     types: ["Bug", "Steel"],
     abilities: ["Hustle", "Swarm", "Truant"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 632,
@@ -15686,7 +15686,7 @@ const ssData = [
     height: 1,
     types: ["Normal", "Ground"],
     abilities: ["Cheek Pouch", "Huge Power", "Pickup"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 660,
@@ -16022,7 +16022,7 @@ const ssData = [
     height: 2.1,
     types: ["Fighting", "Dark"],
     abilities: ["Iron Fist", "Mold Breaker", "Scrappy"],
-    formats: ["RUBL"],
+    formats: ["RUBL", "UU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 675,
@@ -16295,7 +16295,7 @@ const ssData = [
     height: 1.3,
     types: ["Rock", "Water"],
     abilities: ["Pickpocket", "Sniper", "Tough Claws"],
-    formats: ["RUBL"],
+    formats: ["RUBL", "UU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 689,
@@ -16631,7 +16631,7 @@ const ssData = [
     height: 2,
     types: ["Dragon"],
     abilities: ["Gooey", "Hydration", "Sap Sipper"],
-    formats: ["RUBL"],
+    formats: ["RUBL", "UU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 706,
@@ -17453,7 +17453,7 @@ const ssData = [
     height: 1.1,
     types: ["Ice", "Fairy"],
     abilities: ["Snow Cloak", "Snow Warning"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: { dex_number: 38, evos: [], alts: [], genfamily: ["SM", "SS"] }
   },
@@ -17911,7 +17911,7 @@ const ssData = [
     height: 1.8,
     types: ["Water", "Fairy"],
     abilities: ["Liquid Voice", "Torrent"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 730,
@@ -19043,7 +19043,7 @@ const ssData = [
     height: 2.3,
     types: ["Normal"],
     abilities: ["RKS System"],
-    formats: ["PUBL"],
+    formats: ["PUBL", "NU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 773,
@@ -19190,7 +19190,7 @@ const ssData = [
     height: 2.3,
     types: ["Fire"],
     abilities: ["RKS System"],
-    formats: ["PUBL"],
+    formats: ["PUBL", "NU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 773,
@@ -19274,7 +19274,7 @@ const ssData = [
     height: 2.3,
     types: ["Ground"],
     abilities: ["RKS System"],
-    formats: ["PUBL"],
+    formats: ["PUBL", "NU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 773,
@@ -19463,7 +19463,7 @@ const ssData = [
     height: 2,
     types: ["Fire", "Dragon"],
     abilities: ["Shell Armor"],
-    formats: ["NUBL"],
+    formats: ["NUBL", "RU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 776,
@@ -21461,7 +21461,7 @@ const ssData = [
     height: 1.3,
     types: ["Water"],
     abilities: ["Propeller Tail", "Swift Swim"],
-    formats: ["RUBL"],
+    formats: ["RUBL", "UU"],
     isNonstandard: "Standard",
     oob: { dex_number: 847, evos: [], alts: [], genfamily: ["SS"] }
   },
@@ -21556,7 +21556,7 @@ const ssData = [
     height: 3,
     types: ["Fire", "Bug"],
     abilities: ["Flame Body", "Flash Fire", "White Smoke"],
-    formats: ["RUBL"],
+    formats: ["RUBL", "UU"],
     isNonstandard: "Standard",
     oob: {
       dex_number: 851,
@@ -21814,7 +21814,7 @@ const ssData = [
     height: 1.6,
     types: ["Dark", "Normal"],
     abilities: ["Defiant", "Guts", "Reckless"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: { dex_number: 862, evos: [], alts: [], genfamily: ["SS"] }
   },
@@ -22153,7 +22153,7 @@ const ssData = [
     height: 1.8,
     types: ["Electric", "Dragon"],
     abilities: ["Hustle", "Sand Rush", "Volt Absorb"],
-    formats: ["UUBL"],
+    formats: ["UUBL", "OU"],
     isNonstandard: "Standard",
     oob: { dex_number: 880, evos: [], alts: [], genfamily: ["SS"] }
   },
@@ -22169,7 +22169,7 @@ const ssData = [
     height: 2.3,
     types: ["Electric", "Ice"],
     abilities: ["Slush Rush", "Static", "Volt Absorb"],
-    formats: ["PUBL"],
+    formats: ["PUBL", "NU"],
     isNonstandard: "Standard",
     oob: { dex_number: 881, evos: [], alts: [], genfamily: ["SS"] }
   },
@@ -22201,7 +22201,7 @@ const ssData = [
     height: 2,
     types: ["Water", "Ice"],
     abilities: ["Ice Body", "Slush Rush", "Water Absorb"],
-    formats: ["PUBL"],
+    formats: ["PUBL", "NU"],
     isNonstandard: "Standard",
     oob: { dex_number: 883, evos: [], alts: [], genfamily: ["SS"] }
   },
