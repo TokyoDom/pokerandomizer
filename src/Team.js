@@ -1,7 +1,19 @@
-import React, { useState, forwardRef, useImperativeHandle } from "react";
+import React, {
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle
+} from "react";
 import Pokemon from "./Pokemon";
 import axios from "axios";
 import ssData from "./genData/ssData";
+import smData from "./genData/smData";
+import xyData from "./genData/xyData";
+import bwData from "./genData/bwData";
+import dpData from "./genData/dpData";
+import rsData from "./genData/rsData";
+import gsData from "./genData/gsData";
+import rbData from "./genData/rbData";
 import "./styles/Team.css";
 
 //default
@@ -37,12 +49,19 @@ const ditto = {
 function Team({ gen, tier, weight }, ref) {
   const [team, setTeam] = useState(new Array(6).fill(ditto));
   const [dexNums, setDexNums] = useState(new Array(6).fill(132)); //to not make repeats on forms
+  const [locks, setLocks] = useState(new Array(6).fill(false));
+
+  //reset locks if gen or tier changes
+  useEffect(() => {
+    setLocks(new Array(6).fill(false));
+  }, [gen, tier]);
 
   useImperativeHandle(ref, () => ({
     getTeam,
     exportTeam
   }));
 
+  //for shuffling lists
   const shuffle = arr => {
     let i = arr.length,
       j = 0,
@@ -54,40 +73,121 @@ function Team({ gen, tier, weight }, ref) {
       arr[i] = arr[j];
       arr[j] = temp;
     }
+
+    return arr;
   };
 
+  //get list of viable pokemon for tier
+  const getList = () => {
+    //all bl tiers converted to higher tier in data
+    /* Not working:
+    GS NU - not enough pokemon sets
+    DP - some abilities undefined in database. ex: Rotom-W, Skarmory
+       - Rotom forms use special moves from any form, database issue?
+    BW - some abilities undefined in database. ex: Mew, Swampert
+    SS PU - not enough pokemon sets
+    */
+    let list = [];
+    switch (gen) {
+      case "SS":
+        list = ssData.filter(poke => poke.formats.includes(tier) && poke.oob);
+        break;
+      case "SM":
+        list = smData.filter(poke => poke.formats.includes(tier) && poke.oob);
+        break;
+      case "XY":
+        list = xyData.filter(poke => poke.formats.includes(tier) && poke.oob);
+        break;
+      case "BW":
+        list = bwData.filter(poke => poke.formats.includes(tier) && poke.oob);
+        break;
+      case "DP":
+        list = dpData.filter(poke => poke.formats.includes(tier) && poke.oob);
+        break;
+      case "RS":
+        list = rsData.filter(poke => poke.formats.includes(tier) && poke.oob);
+        break;
+      case "GS":
+        list = gsData.filter(poke => poke.formats.includes(tier) && poke.oob);
+        break;
+      case "RB":
+        list = rbData.filter(poke => poke.formats.includes(tier) && poke.oob);
+        break;
+      default:
+        break;
+    }
+
+    return shuffle(list);
+  };
+
+  //get standard team
   const getTeam = async () => {
-    //get list of allowed pokemon
-    const list = ssData.filter(poke => poke.formats.includes(tier) && poke.oob);
-    shuffle(list);
+    const list = getList();
 
     //get 6 new pokemon that have data
     let newTeam = [];
     let newDex = [];
     let count = 0;
-    while (newTeam.length !== 6) {
-      if (!newDex.includes(list[count].oob.dex_number)) {
-        //check if dex num is used already
-        const result = await axios(
-          `http://192.168.1.2:5000/gen/${gen}/${tier}/${list[count].name}`
-        );
-        const data = result.data;
-        if (data) {
-          newTeam = [
-            ...newTeam,
-            data.movesets[Math.floor(Math.random() * data.movesets.length)]
-          ];
-          newDex = [...newDex, list[count].oob.dex_number];
+    while (newTeam.length < 6) {
+      if (locks[newDex.length]) {
+        //check for locks
+        newTeam = [...newTeam, team[newDex.length]];
+        newDex = [...newDex, dexNums[newDex.length]];
+      } else {
+        if (!newDex.includes(list[count].oob.dex_number)) {
+          //check if dex num is used already
+          const result = await axios(
+            `http://192.168.1.2:5000/gen/${gen}/${tier}/${list[count].name}`
+          );
+          const data = result.data;
+          if (data) {
+            newTeam = [
+              ...newTeam,
+              data.movesets[Math.floor(Math.random() * data.movesets.length)]
+            ];
+            newDex = [...newDex, list[count].oob.dex_number];
+          }
         }
-      }
 
-      count++;
+        count++;
+      }
     }
 
     setTeam(newTeam);
     setDexNums(newDex);
   };
 
+  //get new pokemon for slot
+  const getSlot = async i => {
+    const list = getList().filter(
+      poke => !dexNums.includes(poke.oob.dex_number)
+    );
+
+    //find 1 pokemon with set
+    let pokemon = null;
+    let count = 0;
+    while (!pokemon) {
+      const result = await axios(
+        `http://192.168.1.2:5000/gen/${gen}/${tier}/${list[count].name}`
+      );
+      pokemon = result.data;
+      count++;
+    }
+
+    let newArr = [...team];
+    newArr[i] =
+      pokemon.movesets[Math.floor(Math.random() * pokemon.movesets.length)];
+    setTeam(newArr);
+  };
+
+  //change lock state
+  const toggleLock = i => {
+    let newLocks = [...locks];
+    newLocks[i] = !newLocks[i];
+    setLocks(newLocks);
+  };
+
+  //generate export string for showdown
   const exportTeam = () => {
     let exTeam = "";
     team.forEach(poke => {
@@ -118,7 +218,12 @@ function Team({ gen, tier, weight }, ref) {
 
       let moves = "";
       poke.moveslots.forEach(slot => {
-        const move = slot[0].move;
+        let move;
+        if (slot[0].type) {
+          move = `${slot[0].move} ${slot[0].type}`;
+        } else {
+          move = slot[0].move;
+        }
         moves += `- ${move}\n`;
       });
 
@@ -149,7 +254,14 @@ ${moves}
   return (
     <section className="team" ref={ref}>
       {team.map((pokemon, i) => (
-        <Pokemon pokemon={pokemon} key={i} />
+        <Pokemon
+          key={i}
+          pokemon={pokemon}
+          i={i}
+          getSlot={getSlot}
+          lock={locks[i]}
+          toggleLock={toggleLock}
+        />
       ))}
     </section>
   );
