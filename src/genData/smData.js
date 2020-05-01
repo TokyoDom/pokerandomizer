@@ -16939,7 +16939,7 @@ const smData = [{
 		"genfamily": ["SM", "SS"]
 	}
 }, {
-	"name": "Zygarde-10%",
+	"name": "Zygarde-10",
 	"hp": 54,
 	"atk": 100,
 	"def": 71,

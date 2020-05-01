@@ -15,6 +15,10 @@ function Pokemon({ pokemon, i, getSlot, lock, toggleLock }) {
       img = "hooh";
     }
 
+    if(img === "oricorio-pom-pom") {
+      img = "oricorio-pompom";
+    }
+
     return (
       <img
         src={`https://play.pokemonshowdown.com/sprites/ani/${img}.gif`}

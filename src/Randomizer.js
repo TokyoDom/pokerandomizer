@@ -86,7 +86,9 @@ function Randomizer() {
           color="primary"
           onClick={e => {
             e.preventDefault();
-            teamRef.current.getTeam();
+            if(weight === "Standard") teamRef.current.getTeam();
+            if(weight === "Mixed") teamRef.current.getLowerTeam(3);
+            if(weight === "Heat") teamRef.current.getLowerTeam(1);
           }}
         >
           Randomize

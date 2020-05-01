@@ -46,7 +46,7 @@ const ditto = {
   pokemon: "Ditto"
 };
 
-function Team({ gen, tier, weight }, ref) {
+function Team({ gen, tier }, ref) {
   const [team, setTeam] = useState(new Array(6).fill(ditto));
   const [dexNums, setDexNums] = useState(new Array(6).fill(132)); //to not make repeats on forms
   const [locks, setLocks] = useState(new Array(6).fill(false));
@@ -58,6 +58,7 @@ function Team({ gen, tier, weight }, ref) {
 
   useImperativeHandle(ref, () => ({
     getTeam,
+    getLowerTeam,
     exportTeam
   }));
 
@@ -81,13 +82,12 @@ function Team({ gen, tier, weight }, ref) {
   const getList = () => {
     //all bl tiers converted to higher tier in data
     /* Not working:
-    GS NU - not enough pokemon sets
-    DP - some abilities undefined in database. ex: Rotom-W, Skarmory
-       - Rotom forms use special moves from any form, database issue?
+    GS NU - not enough pokemon sets (changed in Routes)
+    DP - some abilities undefined in database. ex: Skarmory
     BW - some abilities undefined in database. ex: Mew, Swampert
-    SS PU - not enough pokemon sets
+    SS PU - not enough pokemon sets (changed in Routes)
     */
-    let list = [];
+    let list;
     switch (gen) {
       case "SS":
         list = ssData.filter(poke => poke.formats.includes(tier) && poke.oob);
@@ -120,15 +120,85 @@ function Team({ gen, tier, weight }, ref) {
     return shuffle(list);
   };
 
-  //get standard team
-  const getTeam = async () => {
-    const list = getList();
+  //get second list for mixed or heat
+  const getLowerList = () => {
+    let list;
+    switch (gen) {
+      case "SS":
+        list = ssData.filter(poke => poke.oob);
+        break;
+      case "SM":
+        list = smData.filter(poke => poke.oob);
+        break;
+      case "XY":
+        list = xyData.filter(poke => poke.oob);
+        break;
+      case "BW":
+        list = bwData.filter(poke => poke.oob);
+        break;
+      case "DP":
+        list = dpData.filter(poke => poke.oob);
+        break;
+      case "RS":
+        list = rsData.filter(poke => poke.oob);
+        break;
+      case "GS":
+        list = gsData.filter(poke => poke.oob);
+        break;
+      case "RB":
+        list = rbData.filter(poke => poke.oob);
+        break;
+      default:
+        break;
+    }
 
-    //get 6 new pokemon that have data
-    let newTeam = [];
-    let newDex = [];
+    let tiers;
+    switch (tier) {
+      case "Uber":
+        tiers = ["Uber", "OU", "UU", "RU", "NU", "PU"];
+        list = list.filter(poke =>
+          tiers.some(tier => poke.formats.includes(tier))
+        );
+        break;
+      case "OU":
+        tiers = ["OU", "UU", "RU", "NU", "PU"];
+        list = list.filter(poke =>
+          tiers.some(tier => poke.formats.includes(tier))
+        );
+        break;
+      case "UU":
+        tiers = ["UU", "RU", "NU", "PU"];
+        list = list.filter(poke =>
+          tiers.some(tier => poke.formats.includes(tier))
+        );
+        break;
+      case "RU":
+        tiers = ["RU", "NU", "PU"];
+        list = list.filter(poke =>
+          tiers.some(tier => poke.formats.includes(tier))
+        );
+        break;
+      case "NU":
+        tiers = ["NU", "PU"];
+        list = list.filter(poke =>
+          tiers.some(tier => poke.formats.includes(tier))
+        );
+        break;
+      default:
+        list = list.filter(poke => poke.formats.includes(tier));
+        break;
+    }
+
+    return shuffle(list);
+  };
+
+  //return sets and dex nums
+  const fetchSets = async (prevDex, prevTeam, list, i) => {
+    //get new pokemon that have data
+    let newDex = [...prevDex];
+    let newTeam = [...prevTeam];
     let count = 0;
-    while (newTeam.length < 6) {
+    while (newTeam.length < i) {
       if (locks[newDex.length]) {
         //check for locks
         newTeam = [...newTeam, team[newDex.length]];
@@ -136,8 +206,11 @@ function Team({ gen, tier, weight }, ref) {
       } else {
         if (!newDex.includes(list[count].oob.dex_number)) {
           //check if dex num is used already
+          const pokeTier = list[count].formats.filter(
+            format => !format.match(/BL/)
+          ); //use pokes tier
           const result = await axios(
-            `http://192.168.1.2:5000/gen/${gen}/${tier}/${list[count].name}`
+            `http://192.168.1.2:5000/gen/${gen}/${pokeTier[0]}/${list[count].name}`
           );
           const data = result.data;
           if (data) {
@@ -153,8 +226,37 @@ function Team({ gen, tier, weight }, ref) {
       }
     }
 
+    return {
+      newTeam,
+      newDex
+    };
+  };
+
+  //get standard team
+  const getTeam = async () => {
+    const list = getList();
+
+    const { newTeam, newDex } = await fetchSets([], [], list, 6);
+
     setTeam(newTeam);
     setDexNums(newDex);
+  };
+
+  //get mixed or heat team
+  const getLowerTeam = async listLen => {
+    const list = getList();
+    const lowerList = getLowerList();
+
+    const { newTeam, newDex } = await fetchSets([], [], list, listLen);
+    const { newTeam: finalTeam, newDex: finalDex } = await fetchSets(
+      newDex,
+      newTeam,
+      lowerList,
+      6
+    );
+
+    setTeam(finalTeam);
+    setDexNums(finalDex);
   };
 
   //get new pokemon for slot
@@ -227,6 +329,7 @@ function Team({ gen, tier, weight }, ref) {
         moves += `- ${move}\n`;
       });
 
+      //doesnt work for RB and GS
       let set;
       if (ivString !== "") {
         set = `${name} @ ${item}
