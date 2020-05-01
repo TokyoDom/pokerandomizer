@@ -91,7 +91,7 @@ router.get("/GS/:tier/:pokemon", async (req, res) => {
         "movesets.pokemon": req.params.pokemon
       });
     } else {
-      pokemon = await SS.findOne({
+      pokemon = await GS.findOne({
         "movesets.pokemon": req.params.pokemon,
         format: req.params.tier
       });

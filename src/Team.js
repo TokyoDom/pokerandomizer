@@ -82,10 +82,8 @@ function Team({ gen, tier }, ref) {
   const getList = () => {
     //all bl tiers converted to higher tier in data
     /* Not working:
-    GS NU - not enough pokemon sets (changed in Routes)
     DP - some abilities undefined in database. ex: Skarmory
     BW - some abilities undefined in database. ex: Mew, Swampert
-    SS PU - not enough pokemon sets (changed in Routes)
     */
     let list;
     switch (gen) {
@@ -214,11 +212,30 @@ function Team({ gen, tier }, ref) {
           );
           const data = result.data;
           if (data) {
-            newTeam = [
-              ...newTeam,
-              data.movesets[Math.floor(Math.random() * data.movesets.length)]
-            ];
-            newDex = [...newDex, list[count].oob.dex_number];
+            //check for z crystal or mega stone
+            let movesets = data.movesets;
+            const lockedSlots = team.filter((poke, i) => locks[i]);
+
+            let hasZ =
+              newTeam.some(poke => poke.items[0].match(/.*\sZ/)) ||
+              lockedSlots.some(poke => poke.items[0].match(/.*\sZ/));
+            if (hasZ)
+              movesets = movesets.filter(set => !set.items[0].match(/.*\sZ/));
+
+            let hasMega =
+              newTeam.some(poke => poke.items[0].match(/.*(ite)/)) ||
+              lockedSlots.some(poke => poke.items[0].match(/.*(ite)/));
+            if (hasMega)
+              movesets = movesets.filter(set => !set.items[0].match(/.*(ite)/));
+
+            //pick random set if available
+            if (movesets.length > 0) {
+              newTeam = [
+                ...newTeam,
+                movesets[Math.floor(Math.random() * movesets.length)]
+              ];
+              newDex = [...newDex, list[count].oob.dex_number];
+            }
           }
         }
 
@@ -265,21 +282,36 @@ function Team({ gen, tier }, ref) {
       poke => !dexNums.includes(poke.oob.dex_number)
     );
 
-    //find 1 pokemon with set
-    let pokemon = null;
     let count = 0;
-    while (!pokemon) {
+    let setAdded = false;
+
+    while (!setAdded) {
       const result = await axios(
         `http://192.168.1.2:5000/gen/${gen}/${tier}/${list[count].name}`
       );
-      pokemon = result.data;
+      const data = result.data;
+      if (data) {
+        //check for z crystal or mega stone
+        let movesets = data.movesets;
+
+        let hasZ = team.some(poke => poke.items[0].match(/.*\sZ/));
+        if (hasZ)
+          movesets = movesets.filter(set => !set.items[0].match(/.*\sZ/));
+
+        let hasMega = team.some(poke => poke.items[0].match(/.*(ite)/));
+        if (hasMega)
+          movesets = movesets.filter(set => !set.items[0].match(/.*(ite)/));
+
+        //pick random set if available
+        if (movesets.length > 0) {
+          let newArr = [...team];
+          newArr[i] = movesets[Math.floor(Math.random() * movesets.length)];
+          setTeam(newArr);
+          setAdded = true;
+        }
+      }
       count++;
     }
-
-    let newArr = [...team];
-    newArr[i] =
-      pokemon.movesets[Math.floor(Math.random() * pokemon.movesets.length)];
-    setTeam(newArr);
   };
 
   //change lock state
@@ -329,24 +361,13 @@ function Team({ gen, tier }, ref) {
         moves += `- ${move}\n`;
       });
 
-      //doesnt work for RB and GS
-      let set;
-      if (ivString !== "") {
-        set = `${name} @ ${item}
-Ability: ${ability}
-EVs:${evString}
-${nature} Nature
-IVs:${ivString}
-${moves}
-`;
-      } else {
-        set = `${name} @ ${item}
-Ability: ${ability}
-EVs:${evString}
-${nature} Nature
-${moves}
-`;
-      }
+      let set = name;
+      if (item) set += ` @ ${item}`;
+      if (ability) set += `\nAbility: ${ability}`;
+      if (evString !== "") set += `\nEVs:${evString}`;
+      if (nature) set += `\n${nature} Nature`;
+      if (ivString !== "") set += `\nIVs:${ivString}`;
+      if (moves !== "") set += `\n${moves}\n`;
 
       exTeam += set;
     });

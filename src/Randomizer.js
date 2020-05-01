@@ -1,8 +1,9 @@
 import React, { useState, useRef } from "react";
 import { Form, FormGroup, Input, Button } from "reactstrap";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import Modal from "@material-ui/core/Modal";
 import Card from "@material-ui/core/Card";
-import CardHeader from '@material-ui/core/CardHeader';
+import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
 import TextField from "@material-ui/core/TextField";
 import Team from "./Team";
@@ -28,6 +29,7 @@ function Randomizer() {
   const [exTeam, setExTeam] = useState("");
 
   const [modal, setModal] = useState(false);
+  const [copied, setCopied] = useState("");
 
   const teamRef = useRef();
 
@@ -86,9 +88,9 @@ function Randomizer() {
           color="primary"
           onClick={e => {
             e.preventDefault();
-            if(weight === "Standard") teamRef.current.getTeam();
-            if(weight === "Mixed") teamRef.current.getLowerTeam(3);
-            if(weight === "Heat") teamRef.current.getLowerTeam(1);
+            if (weight === "Standard") teamRef.current.getTeam();
+            if (weight === "Mixed") teamRef.current.getLowerTeam(3);
+            if (weight === "Heat") teamRef.current.getLowerTeam(1);
           }}
         >
           Randomize
@@ -112,11 +114,32 @@ function Randomizer() {
     <section className="randomizer">
       <div className="title">RANDOM POKÉMON TEAM GENERATOR</div>
       {generateOptions()}
-      <Modal open={modal} onClose={e => setModal(false)}>
-        <Card style={{overflow: "scroll"}} className="card">
-          <CardHeader title="Export"/>
+      <Modal
+        open={modal}
+        onClose={e => {
+          setModal(false);
+          setCopied("");
+        }}
+      >
+        <Card style={{ overflow: "scroll" }} className="card">
+          <CardHeader
+            title="Export"
+            action={
+              <CopyToClipboard text={exTeam} onCopy={() => setCopied("Copied")}>
+                <Button color="primary" style={{ marginTop: 8 }}>
+                  Copy
+                </Button>
+              </CopyToClipboard>
+            }
+            subheader={copied}
+          />
           <CardContent>
-            <TextField variant="outlined" multiline value={exTeam} style={{width: "100%"}}/>
+            <TextField
+              variant="outlined"
+              multiline
+              value={exTeam}
+              style={{ width: "100%" }}
+            />
           </CardContent>
         </Card>
       </Modal>
