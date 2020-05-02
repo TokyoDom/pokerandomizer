@@ -1,8 +1,14 @@
 .team {
   margin-top: 3vh;
   display: grid;
-  grid-template-columns: 320px 320px;
+  grid-template-columns: repeat(3, 320px);
   grid-gap: 32px;
+}
+
+@media only screen and (max-width: 1050px) {
+  .team {
+    grid-template-columns: repeat(2, 320px);
+  }
 }
 
 @media only screen and (max-width: 700px) {

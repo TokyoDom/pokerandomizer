@@ -15,7 +15,7 @@ function Pokemon({ pokemon, i, getSlot, lock, toggleLock }) {
       img = "hooh";
     }
 
-    if(img === "oricorio-pom-pom") {
+    if (img === "oricorio-pom-pom") {
       img = "oricorio-pompom";
     }
 

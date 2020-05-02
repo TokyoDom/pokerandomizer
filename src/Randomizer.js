@@ -5,6 +5,7 @@ import Modal from "@material-ui/core/Modal";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
+import CardActions from "@material-ui/core/CardActions";
 import TextField from "@material-ui/core/TextField";
 import Team from "./Team";
 import "./styles/Randomizer.css";
@@ -26,10 +27,13 @@ function Randomizer() {
   const [generation, setGeneration] = useState("SS");
   const [tier, setTier] = useState("OU");
   const [weight, setWeight] = useState("Standard");
-  const [exTeam, setExTeam] = useState("");
 
-  const [modal, setModal] = useState(false);
+  const [exTeam, setExTeam] = useState("");
+  const [exModal, setExModal] = useState(false);
   const [copied, setCopied] = useState("");
+
+  const [impTeam, setImpTeam] = useState("");
+  const [impModal, setImpModal] = useState(false);
 
   const teamRef = useRef();
 
@@ -84,6 +88,7 @@ function Randomizer() {
           </Input>
         </FormGroup>
         <Button
+          style={{ border: "3px solid #b5e9f6", color: "#b5e9f6" }}
           outline
           color="primary"
           onClick={e => {
@@ -96,28 +101,38 @@ function Randomizer() {
           Randomize
         </Button>
         <Button
+          style={{ border: "3px solid #ff8a8a", color: "#ff8a8a" }}
           outline
           color="danger"
           onClick={e => {
             e.preventDefault();
             setExTeam(teamRef.current.exportTeam());
-            setModal(true);
+            setExModal(true);
           }}
         >
           Export
+        </Button>
+        <Button
+          style={{ border: "3px solid #ff8a8a", color: "#ff8a8a" }}
+          outline
+          color="danger"
+          onClick={e => {
+            e.preventDefault();
+            setImpModal(true);
+          }}
+        >
+          Import
         </Button>
       </Form>
     );
   };
 
-  return (
-    <section className="randomizer">
-      <div className="title">RANDOM POKÉMON TEAM GENERATOR</div>
-      {generateOptions()}
+  const exportModal = () => {
+    return (
       <Modal
-        open={modal}
+        open={exModal}
         onClose={e => {
-          setModal(false);
+          setExModal(false);
           setCopied("");
         }}
       >
@@ -126,7 +141,7 @@ function Randomizer() {
             title="Export"
             action={
               <CopyToClipboard text={exTeam} onCopy={() => setCopied("Copied")}>
-                <Button color="primary" style={{ marginTop: 8 }}>
+                <Button color="dark" style={{ marginTop: 8 }}>
                   Copy
                 </Button>
               </CopyToClipboard>
@@ -143,6 +158,52 @@ function Randomizer() {
           </CardContent>
         </Card>
       </Modal>
+    );
+  };
+
+  const importModal = () => {
+    return (
+      <Modal
+        open={impModal}
+        onClose={e => {
+          setImpModal(false);
+          setImpTeam("");
+        }}
+      >
+        <Card style={{ overflow: "scroll" }} className="card">
+          <CardHeader title="Import" />
+          <CardContent>
+            <TextField
+              variant="outlined"
+              multiline
+              value={impTeam}
+              onChange={e => setImpTeam(e.target.value)}
+              style={{ width: "100%" }}
+            />
+          </CardContent>
+          <CardActions>
+            <Button
+              color="dark"
+              style={{ marginTop: 8 }}
+              onClick={e => {
+                teamRef.current.importTeam(impTeam);
+                setImpModal(false);
+              }}
+            >
+              Import
+            </Button>
+          </CardActions>
+        </Card>
+      </Modal>
+    );
+  };
+
+  return (
+    <section className="randomizer">
+      <div className="title">RANDOM POKÉMON TEAM GENERATOR</div>
+      {generateOptions()}
+      {exportModal()}
+      {importModal()}
       <Team gen={generation} tier={tier} weight={weight} ref={teamRef} />
     </section>
   );

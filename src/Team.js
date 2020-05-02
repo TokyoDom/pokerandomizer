@@ -46,20 +46,21 @@ const ditto = {
   pokemon: "Ditto"
 };
 
-function Team({ gen, tier }, ref) {
+function Team({ gen, tier, weight }, ref) {
   const [team, setTeam] = useState(new Array(6).fill(ditto));
   const [dexNums, setDexNums] = useState(new Array(6).fill(132)); //to not make repeats on forms
   const [locks, setLocks] = useState(new Array(6).fill(false));
 
-  //reset locks if gen or tier changes
+  //reset locks if option changes
   useEffect(() => {
     setLocks(new Array(6).fill(false));
-  }, [gen, tier]);
+  }, [gen, tier, weight]);
 
   useImperativeHandle(ref, () => ({
     getTeam,
     getLowerTeam,
-    exportTeam
+    exportTeam,
+    importTeam
   }));
 
   //for shuffling lists
@@ -202,7 +203,8 @@ function Team({ gen, tier }, ref) {
         newTeam = [...newTeam, team[newDex.length]];
         newDex = [...newDex, dexNums[newDex.length]];
       } else {
-        if (!newDex.includes(list[count].oob.dex_number)) {
+        const lockedDexNums = dexNums.filter((num, i) => locks[i]);
+        if (!newDex.includes(list[count].oob.dex_number) && !lockedDexNums.includes(list[count].oob.dex_number)) {
           //check if dex num is used already
           const pokeTier = list[count].formats.filter(
             format => !format.match(/BL/)
@@ -217,14 +219,40 @@ function Team({ gen, tier }, ref) {
             const lockedSlots = team.filter((poke, i) => locks[i]);
 
             let hasZ =
-              newTeam.some(poke => poke.items[0].match(/.*\sZ/)) ||
-              lockedSlots.some(poke => poke.items[0].match(/.*\sZ/));
+              newTeam.some(poke => {
+                if (poke.items[0] !== undefined) {
+                  return poke.items[0].match(/.*\sZ/);
+                } else {
+                  return false;
+                }
+              }) ||
+              lockedSlots.some(poke => {
+                if (poke.items[0] !== undefined) {
+                  return poke.items[0].match(/.*\sZ/);
+                } else {
+                  return false;
+                }
+              });
+
             if (hasZ)
               movesets = movesets.filter(set => !set.items[0].match(/.*\sZ/));
 
             let hasMega =
-              newTeam.some(poke => poke.items[0].match(/.*(ite)/)) ||
-              lockedSlots.some(poke => poke.items[0].match(/.*(ite)/));
+              newTeam.some(poke => {
+                if (poke.items[0] !== undefined) {
+                  return poke.items[0].match(/.*(ite)/);
+                } else {
+                  return false;
+                }
+              }) ||
+              lockedSlots.some(poke => {
+                if (poke.items[0] !== undefined) {
+                  return poke.items[0].match(/.*(ite)/);
+                } else {
+                  return false;
+                }
+              });
+
             if (hasMega)
               movesets = movesets.filter(set => !set.items[0].match(/.*(ite)/));
 
@@ -294,11 +322,15 @@ function Team({ gen, tier }, ref) {
         //check for z crystal or mega stone
         let movesets = data.movesets;
 
-        let hasZ = team.some(poke => poke.items[0].match(/.*\sZ/));
+        let hasZ = team.some(poke =>
+          poke.items[0] !== undefined ? poke.items[0].match(/.*\sZ/) : false
+        );
         if (hasZ)
           movesets = movesets.filter(set => !set.items[0].match(/.*\sZ/));
 
-        let hasMega = team.some(poke => poke.items[0].match(/.*(ite)/));
+        let hasMega = team.some(poke =>
+          poke.items[0] !== undefined ? poke.items[0].match(/.*(ite)/) : false
+        );
         if (hasMega)
           movesets = movesets.filter(set => !set.items[0].match(/.*(ite)/));
 
@@ -373,6 +405,143 @@ function Team({ gen, tier }, ref) {
     });
 
     return exTeam;
+  };
+
+  //import team from showdown
+  const importTeam = showdownImport => {
+    const getStats = (mon, eviv) => {
+      let statObj = {};
+      const evivs = mon.filter(str => str.includes(eviv)); //EVs:
+      if (evivs.length > 0) {
+        let stats = evivs[0].slice(4, evivs[0].length);
+        stats = stats.split("/");
+        stats = stats.map(stat => stat.trim().toLowerCase());
+
+        const keys = ["hp", "atk", "def", "spa", "spd", "spe"];
+        keys.forEach(key => {
+          const stat = stats.filter(stat => stat.includes(key));
+          if (stat.length > 0) {
+            statObj[key] = parseInt(stat[0].slice(0, stat[0].indexOf(" ")));
+          } else {
+            if (eviv === "EVs:") {
+              statObj[key] = 0;
+            } else {
+              statObj[key] = 31;
+            }
+          }
+        });
+        return [statObj];
+      }
+
+      return null;
+    };
+
+    let strArr = showdownImport.trim().split("\n");
+    let setsLeft = true;
+    let team = [];
+    let dex_numbers = [];
+
+    while (setsLeft) {
+      const index = strArr.indexOf("");
+      let mon;
+      if (index !== -1) {
+        mon = strArr.splice(0, index + 1);
+        mon.pop();
+      } else {
+        if (strArr[strArr.length - 1] === "") {
+          mon = strArr.pop();
+        } else {
+          mon = strArr;
+        }
+        setsLeft = false;
+      }
+
+      let monObj = {
+        abilities: [],
+        evconfigs: [],
+        items: [],
+        ivconfigs: [],
+        moveslots: [],
+        natures: [],
+        pokemon: ""
+      };
+
+      if (mon[0].indexOf("@") !== -1) {
+        monObj.pokemon = mon[0].slice(0, mon[0].indexOf("@")).trim();
+        monObj.items = [
+          mon[0].slice(mon[0].indexOf("@") + 2, mon[0].length).trim()
+        ];
+      } else {
+        monObj.pokemon = mon[0].trim();
+      }
+
+      const pokemon = monObj.pokemon;
+      if (pokemon.includes("(F)"))
+        monObj.pokemon = pokemon.slice(0, pokemon.indexOf("(") - 1);
+      if (pokemon.includes("(M)"))
+        monObj.pokemon = pokemon.slice(0, pokemon.indexOf("(") - 1);
+
+      const ability = mon.filter(str => str.includes("Ability:"));
+      if (ability.length > 0) {
+        monObj.abilities = [
+          ability[0]
+            .slice(ability[0].indexOf(":") + 2, ability[0].length)
+            .trim()
+        ];
+      }
+
+      const nature = mon.filter(str => str.includes(" Nature"));
+      if (nature.length > 0) {
+        monObj.natures = [nature[0].slice(0, nature[0].indexOf(" "))];
+      }
+
+      const evs = getStats(mon, "EVs:");
+      if (evs) {
+        monObj.evconfigs = evs;
+      }
+
+      const ivs = getStats(mon, "IVs:");
+      if (ivs) {
+        monObj.ivconfigs = ivs;
+      }
+
+      const moves = mon.filter(str => str.charAt(0) === "-");
+      if (moves.length > 0) {
+        let moveslots = [];
+        moves.forEach(move => {
+          let moveObj = {};
+          if (move.includes("Hidden Power")) {
+            moveObj.move = "Hidden Power";
+            moveObj.type = move
+              .slice(move.indexOf("r") + 2, move.length)
+              .trim();
+          } else {
+            moveObj.move = move.slice(2, move.length).trim();
+            moveObj.type = null;
+          }
+
+          moveslots = [...moveslots, [moveObj]];
+        });
+        monObj.moveslots = moveslots;
+      }
+
+      team = [...team, monObj];
+
+      const dex_number = ssData.filter(poke => poke.name === monObj.pokemon);
+      dex_numbers = [
+        ...dex_numbers,
+        dex_number.length > 0 ? dex_number[0].oob.dex_number : null
+      ];
+    }
+
+    let newTeam = new Array(6).fill(ditto);
+    team.forEach((slot, i) => {
+      if (i <= 6) newTeam[i] = slot;
+    });
+
+    setTeam(newTeam);
+    setDexNums(dex_numbers);
+    setLocks(new Array(6).fill(false));
   };
 
   return (

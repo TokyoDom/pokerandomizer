@@ -18,6 +18,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   margin-top: 16px;
 }
 
@@ -46,10 +47,16 @@
 
 .btn-outline-primary {
   box-shadow: 0 0 10px #b5e9f6, inset 0 0 5px #b5e9f6;
+  border-color: #b5e9f6;
 }
 
 .btn-outline-danger {
   box-shadow: 0 0 10px #ff8a8a, inset 0 0 5px #ff8a8a;
+  border-color: #ff8a8a;
+}
+
+.btn:hover {
+  color: white !important;
 }
 
 .card {
