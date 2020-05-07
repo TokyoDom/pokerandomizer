@@ -60,7 +60,7 @@ function Team({ gen, tier, weight }, ref) {
   //fetch standard team
   const getTeam = async () => {
     setLoading(locks.map(lock => lock ? false : true));
-    const result = await axios(`gen/${gen}/${tier}/${weight}`);
+    const result = await axios(`/gen/${gen}/${tier}/${weight}`);
     const list = result.data;
 
     const { newTeam, newDex } = filterSets([], [], list, 6);

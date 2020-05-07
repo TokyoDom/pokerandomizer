@@ -174,6 +174,7 @@ function Randomizer() {
               color="dark"
               onClick={e => {
                 teamRef.current.importTeam(impTeam);
+                setImpTeam("");
                 setImpModal(false);
               }}
               style={{ marginTop: 8 }}
