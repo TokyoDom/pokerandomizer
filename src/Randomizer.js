@@ -5,7 +5,6 @@ import Modal from "@material-ui/core/Modal";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
-import CardActions from "@material-ui/core/CardActions";
 import TextField from "@material-ui/core/TextField";
 import Team from "./Team";
 import "./styles/Randomizer.css";
@@ -21,7 +20,7 @@ const tiers = [
   { gen: "SM", tiers: ["OU", "UU", "RU", "NU", "PU", "Uber", "LC"] },
   { gen: "SS", tiers: ["OU", "UU", "RU", "NU", "PU", "Uber", "LC"] }
 ];
-const weights = ["Standard", "Mixed", "Heat"]; //adjust weight dep on tier/gen combo
+const weights = ["Standard", "Mixed", "Heat"];
 
 function Randomizer() {
   const [generation, setGeneration] = useState("SS");
@@ -166,12 +165,21 @@ function Randomizer() {
       <Modal
         open={impModal}
         onClose={e => {
-          setImpModal(false);
           setImpTeam("");
+          setImpModal(false);
         }}
       >
         <Card style={{ overflow: "scroll" }} className="card">
-          <CardHeader title="Import" />
+          <CardHeader title="Import" action={<Button
+              color="dark"
+              onClick={e => {
+                teamRef.current.importTeam(impTeam);
+                setImpModal(false);
+              }}
+              style={{ marginTop: 8 }}
+            >
+              Import
+            </Button>}/>
           <CardContent>
             <TextField
               variant="outlined"
@@ -181,18 +189,6 @@ function Randomizer() {
               style={{ width: "100%" }}
             />
           </CardContent>
-          <CardActions>
-            <Button
-              color="dark"
-              style={{ marginTop: 8 }}
-              onClick={e => {
-                teamRef.current.importTeam(impTeam);
-                setImpModal(false);
-              }}
-            >
-              Import
-            </Button>
-          </CardActions>
         </Card>
       </Modal>
     );

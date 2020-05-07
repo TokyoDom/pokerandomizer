@@ -2,9 +2,10 @@ import React from "react";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import LockOpenOutlinedIcon from "@material-ui/icons/LockOpenOutlined";
 import CachedOutlinedIcon from "@material-ui/icons/CachedOutlined";
+import { Spinner } from "reactstrap";
 import "./styles/Pokemon.css";
 
-function Pokemon({ pokemon, i, getSlot, lock, toggleLock }) {
+function Pokemon({ loading, pokemon, i, getSlot, lock, toggleLock }) {
   const renderImage = () => {
     let img = pokemon.pokemon.toLowerCase().replace(/[^\w-]+/g, "");
     if (img === "kommo-o") {
@@ -19,12 +20,16 @@ function Pokemon({ pokemon, i, getSlot, lock, toggleLock }) {
       img = "oricorio-pompom";
     }
 
-    return (
-      <img
-        src={`https://play.pokemonshowdown.com/sprites/ani/${img}.gif`}
-        alt={pokemon.pokemon}
-      />
-    );
+    if (loading[i]) {
+      return <Spinner style={{ alignSelf: "center", color: "#b5e9f6" }} />;
+    } else {
+      return (
+        <img
+          src={`https://play.pokemonshowdown.com/sprites/ani/${img}.gif`}
+          alt={pokemon.pokemon}
+        />
+      );
+    }
   };
 
   return (

@@ -6,14 +6,6 @@ import React, {
 } from "react";
 import Pokemon from "./Pokemon";
 import axios from "axios";
-import ssData from "./genData/ssData";
-import smData from "./genData/smData";
-import xyData from "./genData/xyData";
-import bwData from "./genData/bwData";
-import dpData from "./genData/dpData";
-import rsData from "./genData/rsData";
-import gsData from "./genData/gsData";
-import rbData from "./genData/rbData";
 import "./styles/Team.css";
 
 //default
@@ -48,14 +40,16 @@ const ditto = {
 
 function Team({ gen, tier, weight }, ref) {
   const [team, setTeam] = useState(new Array(6).fill(ditto));
-  const [dexNums, setDexNums] = useState(new Array(6).fill(132)); //to not make repeats on forms
+  const [dexNums, setDexNums] = useState(new Array(6).fill(132)); //to not make repeats on pokemon
   const [locks, setLocks] = useState(new Array(6).fill(false));
+  const [loading, setLoading] = useState(new Array(6).fill(false));
 
   //reset locks if option changes
   useEffect(() => {
     setLocks(new Array(6).fill(false));
   }, [gen, tier, weight]);
 
+  //functions for randomizerJS
   useImperativeHandle(ref, () => ({
     getTeam,
     getLowerTeam,
@@ -63,208 +57,93 @@ function Team({ gen, tier, weight }, ref) {
     importTeam
   }));
 
-  //for shuffling lists
-  const shuffle = arr => {
-    let i = arr.length,
-      j = 0,
-      temp;
+  //fetch standard team
+  const getTeam = async () => {
+    setLoading(locks.map(lock => lock ? false : true));
+    const result = await axios(`gen/${gen}/${tier}/${weight}`);
+    const list = result.data;
 
-    while (i--) {
-      j = Math.floor(Math.random() * (i + 1));
-      temp = arr[i];
-      arr[i] = arr[j];
-      arr[j] = temp;
-    }
+    const { newTeam, newDex } = filterSets([], [], list, 6);
 
-    return arr;
+    setLoading(loading.fill(false));
+    setTeam(newTeam);
+    setDexNums(newDex);
   };
 
-  //get list of viable pokemon for tier
-  const getList = () => {
-    //all bl tiers converted to higher tier in data
-    /* Not working:
-    DP - some abilities undefined in database. ex: Skarmory
-    BW - some abilities undefined in database. ex: Mew, Swampert
-    */
-    let list;
-    switch (gen) {
-      case "SS":
-        list = ssData.filter(poke => poke.formats.includes(tier) && poke.oob);
-        break;
-      case "SM":
-        list = smData.filter(poke => poke.formats.includes(tier) && poke.oob);
-        break;
-      case "XY":
-        list = xyData.filter(poke => poke.formats.includes(tier) && poke.oob);
-        break;
-      case "BW":
-        list = bwData.filter(poke => poke.formats.includes(tier) && poke.oob);
-        break;
-      case "DP":
-        list = dpData.filter(poke => poke.formats.includes(tier) && poke.oob);
-        break;
-      case "RS":
-        list = rsData.filter(poke => poke.formats.includes(tier) && poke.oob);
-        break;
-      case "GS":
-        list = gsData.filter(poke => poke.formats.includes(tier) && poke.oob);
-        break;
-      case "RB":
-        list = rbData.filter(poke => poke.formats.includes(tier) && poke.oob);
-        break;
-      default:
-        break;
-    }
+  //fetch mixed or heat team
+  const getLowerTeam = async listLen => {
+    setLoading(locks.map(lock => lock ? false : true));
+    const result = await axios(`gen/${gen}/${tier}/${weight}`);
+    const list = result.data.filter(poke => poke.formats.includes(tier));
+    const lowerList = result.data;
 
-    return shuffle(list);
+    const { newTeam, newDex } = filterSets([], [], list, listLen);
+    const { newTeam: finalTeam, newDex: finalDex } = filterSets(
+      newDex,
+      newTeam,
+      lowerList,
+      6
+    );
+
+    setTeam(finalTeam);
+    setDexNums(finalDex);
+    setLoading(loading.fill(false));
   };
 
-  //get second list for mixed or heat
-  const getLowerList = () => {
-    let list;
-    switch (gen) {
-      case "SS":
-        list = ssData.filter(poke => poke.oob);
-        break;
-      case "SM":
-        list = smData.filter(poke => poke.oob);
-        break;
-      case "XY":
-        list = xyData.filter(poke => poke.oob);
-        break;
-      case "BW":
-        list = bwData.filter(poke => poke.oob);
-        break;
-      case "DP":
-        list = dpData.filter(poke => poke.oob);
-        break;
-      case "RS":
-        list = rsData.filter(poke => poke.oob);
-        break;
-      case "GS":
-        list = gsData.filter(poke => poke.oob);
-        break;
-      case "RB":
-        list = rbData.filter(poke => poke.oob);
-        break;
-      default:
-        break;
-    }
+  //fetch 1 slot
+  const getSlot = async i => {
+    let loadSlot = [...loading];
+    loadSlot[i] = true;
+    setLoading(loadSlot);
 
-    let tiers;
-    switch (tier) {
-      case "Uber":
-        tiers = ["Uber", "OU", "UU", "RU", "NU", "PU"];
-        list = list.filter(poke =>
-          tiers.some(tier => poke.formats.includes(tier))
-        );
-        break;
-      case "OU":
-        tiers = ["OU", "UU", "RU", "NU", "PU"];
-        list = list.filter(poke =>
-          tiers.some(tier => poke.formats.includes(tier))
-        );
-        break;
-      case "UU":
-        tiers = ["UU", "RU", "NU", "PU"];
-        list = list.filter(poke =>
-          tiers.some(tier => poke.formats.includes(tier))
-        );
-        break;
-      case "RU":
-        tiers = ["RU", "NU", "PU"];
-        list = list.filter(poke =>
-          tiers.some(tier => poke.formats.includes(tier))
-        );
-        break;
-      case "NU":
-        tiers = ["NU", "PU"];
-        list = list.filter(poke =>
-          tiers.some(tier => poke.formats.includes(tier))
-        );
-        break;
-      default:
-        list = list.filter(poke => poke.formats.includes(tier));
-        break;
-    }
+    const result = await axios(`gen/${gen}/${tier}/${weight}`);
+    const list = result.data.filter(poke => !dexNums.includes(poke.oob.dex_number));
 
-    return shuffle(list);
+    let count = 0;
+    let setAdded = false;
+
+    while (!setAdded) {
+      const movesets = secondaryFilter(list[count].setFormats, team);
+
+      //pick random set if available
+      if (movesets.length > 0) {
+        let newArr = [...team];
+        newArr[i] = movesets[Math.floor(Math.random() * movesets.length)];
+        setLoading(loading.fill(false));
+        setTeam(newArr);
+        setAdded = true;
+      }
+      count++;
+    }
   };
 
-  //return sets and dex nums
-  const fetchSets = async (prevDex, prevTeam, list, i) => {
+  //for team randomize
+  const filterSets = (prevDex, prevTeam, list, i) => {
     //get new pokemon that have data
     let newDex = [...prevDex];
     let newTeam = [...prevTeam];
     let count = 0;
     while (newTeam.length < i) {
       if (locks[newDex.length]) {
-        //check for locks
+        //check for lock at i
         newTeam = [...newTeam, team[newDex.length]];
         newDex = [...newDex, dexNums[newDex.length]];
       } else {
         const lockedDexNums = dexNums.filter((num, i) => locks[i]);
-        if (!newDex.includes(list[count].oob.dex_number) && !lockedDexNums.includes(list[count].oob.dex_number)) {
-          //check if dex num is used already
-          const pokeTier = list[count].formats.filter(
-            format => !format.match(/BL/)
-          ); //use pokes tier
-          const result = await axios(
-            `http://192.168.1.2:5000/gen/${gen}/${pokeTier[0]}/${list[count].name}`
-          );
-          const data = result.data;
-          if (data) {
-            //check for z crystal or mega stone
-            let movesets = data.movesets;
-            const lockedSlots = team.filter((poke, i) => locks[i]);
+        const currentMon = list[count];
+        if (
+          !newDex.includes(currentMon.oob.dex_number) &&
+          !lockedDexNums.includes(currentMon.oob.dex_number)
+        ) { //check if dex num is used already
 
-            let hasZ =
-              newTeam.some(poke => {
-                if (poke.items[0] !== undefined) {
-                  return poke.items[0].match(/.*\sZ/);
-                } else {
-                  return false;
-                }
-              }) ||
-              lockedSlots.some(poke => {
-                if (poke.items[0] !== undefined) {
-                  return poke.items[0].match(/.*\sZ/);
-                } else {
-                  return false;
-                }
-              });
-
-            if (hasZ)
-              movesets = movesets.filter(set => !set.items[0].match(/.*\sZ/));
-
-            let hasMega =
-              newTeam.some(poke => {
-                if (poke.items[0] !== undefined) {
-                  return poke.items[0].match(/.*(ite)/);
-                } else {
-                  return false;
-                }
-              }) ||
-              lockedSlots.some(poke => {
-                if (poke.items[0] !== undefined) {
-                  return poke.items[0].match(/.*(ite)/);
-                } else {
-                  return false;
-                }
-              });
-
-            if (hasMega)
-              movesets = movesets.filter(set => !set.items[0].match(/.*(ite)/));
-
-            //pick random set if available
-            if (movesets.length > 0) {
-              newTeam = [
-                ...newTeam,
-                movesets[Math.floor(Math.random() * movesets.length)]
-              ];
-              newDex = [...newDex, list[count].oob.dex_number];
-            }
-          }
+          const movesets = secondaryFilter(currentMon.setFormats, newTeam);
+          if (movesets.length > 0) {
+            newTeam = [
+              ...newTeam,
+              movesets[Math.floor(Math.random() * movesets.length)]
+            ];
+            newDex = [...newDex, list[count].oob.dex_number];
+          }          
         }
 
         count++;
@@ -277,72 +156,64 @@ function Team({ gen, tier, weight }, ref) {
     };
   };
 
-  //get standard team
-  const getTeam = async () => {
-    const list = getList();
-
-    const { newTeam, newDex } = await fetchSets([], [], list, 6);
-
-    setTeam(newTeam);
-    setDexNums(newDex);
-  };
-
-  //get mixed or heat team
-  const getLowerTeam = async listLen => {
-    const list = getList();
-    const lowerList = getLowerList();
-
-    const { newTeam, newDex } = await fetchSets([], [], list, listLen);
-    const { newTeam: finalTeam, newDex: finalDex } = await fetchSets(
-      newDex,
-      newTeam,
-      lowerList,
-      6
-    );
-
-    setTeam(finalTeam);
-    setDexNums(finalDex);
-  };
-
-  //get new pokemon for slot
-  const getSlot = async i => {
-    const list = getList().filter(
-      poke => !dexNums.includes(poke.oob.dex_number)
-    );
-
-    let count = 0;
-    let setAdded = false;
-
-    while (!setAdded) {
-      const result = await axios(
-        `http://192.168.1.2:5000/gen/${gen}/${tier}/${list[count].name}`
+  //filter tier, z, mega options
+  const secondaryFilter = (setFormats, newTeam) => {
+    //check for set from tier, otherwise use diff non-uber tier
+    if (setFormats.some(set => set.format === tier)) {
+      setFormats = setFormats.filter(set => set.format === tier);
+    } else {
+      setFormats = setFormats.filter(
+        set => ["OU", "UU", "RU", "NU", "PU", "ZU"].some(tier => tier === set.format)
       );
-      const data = result.data;
-      if (data) {
-        //check for z crystal or mega stone
-        let movesets = data.movesets;
+    }
 
-        let hasZ = team.some(poke =>
-          poke.items[0] !== undefined ? poke.items[0].match(/.*\sZ/) : false
-        );
-        if (hasZ)
-          movesets = movesets.filter(set => !set.items[0].match(/.*\sZ/));
+    if(setFormats.length > 0) {
+      let movesets = setFormats[0].movesets;
+    
+      //check for z crystal or mega stone
+      const lockedSlots = team.filter((poke, i) => locks[i]);
 
-        let hasMega = team.some(poke =>
-          poke.items[0] !== undefined ? poke.items[0].match(/.*(ite)/) : false
-        );
-        if (hasMega)
-          movesets = movesets.filter(set => !set.items[0].match(/.*(ite)/));
+      let hasZ =
+        newTeam.some(poke => {
+          if (poke.items[0] !== undefined) {
+            return poke.items[0].match(/.*\sZ/);
+          } else {
+            return false;
+          }
+        }) ||
+        lockedSlots.some(poke => {
+          if (poke.items[0] !== undefined) {
+            return poke.items[0].match(/.*\sZ/);
+          } else {
+            return false;
+          }
+        });
 
-        //pick random set if available
-        if (movesets.length > 0) {
-          let newArr = [...team];
-          newArr[i] = movesets[Math.floor(Math.random() * movesets.length)];
-          setTeam(newArr);
-          setAdded = true;
-        }
-      }
-      count++;
+      if (hasZ)
+        movesets = movesets.filter(set => !set.items[0].match(/.*\sZ/));
+
+      let hasMega =
+        newTeam.some(poke => {
+          if (poke.items[0] !== undefined) {
+            return poke.items[0].match(/.*(ite)/);
+          } else {
+            return false;
+          }
+        }) ||
+        lockedSlots.some(poke => {
+          if (poke.items[0] !== undefined) {
+            return poke.items[0].match(/.*(ite)/);
+          } else {
+            return false;
+          }
+        });
+
+      if (hasMega)
+        movesets = movesets.filter(set => !set.items[0].match(/.*(ite)/));
+
+      return movesets;
+    } else {
+      return [];
     }
   };
 
@@ -408,7 +279,8 @@ function Team({ gen, tier, weight }, ref) {
   };
 
   //import team from showdown
-  const importTeam = showdownImport => {
+  const importTeam = async showdownImport => {
+    setLoading(true);
     const getStats = (mon, eviv) => {
       let statObj = {};
       const evivs = mon.filter(str => str.includes(eviv)); //EVs:
@@ -439,7 +311,6 @@ function Team({ gen, tier, weight }, ref) {
     let strArr = showdownImport.trim().split("\n");
     let setsLeft = true;
     let team = [];
-    let dex_numbers = [];
 
     while (setsLeft) {
       const index = strArr.indexOf("");
@@ -526,13 +397,15 @@ function Team({ gen, tier, weight }, ref) {
       }
 
       team = [...team, monObj];
-
-      const dex_number = ssData.filter(poke => poke.name === monObj.pokemon);
-      dex_numbers = [
-        ...dex_numbers,
-        dex_number.length > 0 ? dex_number[0].oob.dex_number : null
-      ];
     }
+
+    //fetch dexnums
+    let url = 'gen/IMPORT/?pokemon=';
+    team.forEach(poke => url += `${poke.pokemon};`);
+    url = url.slice(0, -1);
+
+    const result = await axios(url);
+    const dex_numbers = result.data.map(poke => poke.oob.dex_number);
 
     let newTeam = new Array(6).fill(ditto);
     team.forEach((slot, i) => {
@@ -541,13 +414,15 @@ function Team({ gen, tier, weight }, ref) {
 
     setTeam(newTeam);
     setDexNums(dex_numbers);
-    setLocks(new Array(6).fill(false));
+    setLocks(locks.fill(false));
+    setLoading(loading.fill(false));
   };
 
   return (
     <section className="team" ref={ref}>
       {team.map((pokemon, i) => (
         <Pokemon
+          loading={loading}
           key={i}
           pokemon={pokemon}
           i={i}
