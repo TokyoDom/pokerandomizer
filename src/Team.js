@@ -109,8 +109,13 @@ function Team({ gen, tier, weight }, ref) {
       if (movesets.length > 0) {
         let newArr = [...team];
         newArr[i] = movesets[Math.floor(Math.random() * movesets.length)];
+
+        let newDex = [...dexNums];
+        newDex[i] = list[count].oob.dex_number;
+
         setLoading(loading.fill(false));
         setTeam(newArr);
+        setDexNums(newDex);
         setAdded = true;
       }
       count++;
