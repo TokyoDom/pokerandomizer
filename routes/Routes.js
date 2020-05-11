@@ -87,7 +87,7 @@ router.get("/IMPORT/", async (req, res) => {
   const importTeam = req.query.pokemon.split(";");
   const pokemon = await SSDex.find(
     {
-      name: { $in: importTeam }
+      name: { $in: importTeam },
     },
     { "oob.dex_number": 1, name: 1, _id: 0 }
   ).lean();

@@ -317,7 +317,7 @@ function Team({ gen, tier, weight }, ref) {
     let setsLeft = true;
     let team = [];
 
-    while (setsLeft) {
+    while (setsLeft && team.length < 6) {
       const index = strArr.indexOf("");
       let mon;
       if (index !== -1) {
@@ -356,6 +356,8 @@ function Team({ gen, tier, weight }, ref) {
         monObj.pokemon = pokemon.slice(0, pokemon.indexOf("(") - 1);
       if (pokemon.includes("(M)"))
         monObj.pokemon = pokemon.slice(0, pokemon.indexOf("(") - 1);
+      if(pokemon.endsWith('-Mega'))
+        monObj.pokemon = pokemon.slice(0, pokemon.indexOf('-Mega'));
 
       const ability = mon.filter(str => str.includes("Ability:"));
       if (ability.length > 0) {
@@ -406,19 +408,27 @@ function Team({ gen, tier, weight }, ref) {
 
     //fetch dexnums
     let url = 'gen/IMPORT/?pokemon=';
-    team.forEach(poke => url += `${poke.pokemon};`);
+    team.forEach((poke, i) => url += `${poke.pokemon};`);
     url = url.slice(0, -1);
 
     const result = await axios(url);
-    const dex_numbers = result.data.map(poke => poke.oob.dex_number);
+    const dex_numbers = result.data;
 
     let newTeam = new Array(6).fill(ditto);
     team.forEach((slot, i) => {
-      if (i <= 6) newTeam[i] = slot;
+      if (i < 6) newTeam[i] = slot;
+    });
+
+    let team_dex = new Array(6).fill(0);
+    dex_numbers.forEach(slot => {
+      const index = team.findIndex(poke => poke.pokemon === slot.name);
+      if(index !== -1) {
+        team_dex[index] = slot.oob.dex_number;
+      }
     });
 
     setTeam(newTeam);
-    setDexNums(dex_numbers);
+    setDexNums(team_dex);
     setLocks(locks.fill(false));
     setLoading(loading.fill(false));
   };
