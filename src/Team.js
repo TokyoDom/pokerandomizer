@@ -59,7 +59,7 @@ function Team({ gen, tier, weight }, ref) {
 
   //fetch standard team
   const getTeam = async () => {
-    setLoading(locks.map(lock => lock ? false : true));
+    setLoading(locks.map(lock => (lock ? false : true)));
     const result = await axios(`/gen/${gen}/${tier}/${weight}`);
     const list = result.data;
 
@@ -72,7 +72,7 @@ function Team({ gen, tier, weight }, ref) {
 
   //fetch mixed or heat team
   const getLowerTeam = async listLen => {
-    setLoading(locks.map(lock => lock ? false : true));
+    setLoading(locks.map(lock => (lock ? false : true)));
     const result = await axios(`gen/${gen}/${tier}/${weight}`);
     const list = result.data.filter(poke => poke.formats.includes(tier));
     const lowerList = result.data;
@@ -97,7 +97,9 @@ function Team({ gen, tier, weight }, ref) {
     setLoading(loadSlot);
 
     const result = await axios(`gen/${gen}/${tier}/${weight}`);
-    const list = result.data.filter(poke => !dexNums.includes(poke.oob.dex_number));
+    const list = result.data.filter(
+      poke => !dexNums.includes(poke.oob.dex_number)
+    );
 
     let count = 0;
     let setAdded = false;
@@ -139,7 +141,8 @@ function Team({ gen, tier, weight }, ref) {
         if (
           !newDex.includes(currentMon.oob.dex_number) &&
           !lockedDexNums.includes(currentMon.oob.dex_number)
-        ) { //check if dex num is used already
+        ) {
+          //check if dex num is used already
 
           const movesets = secondaryFilter(currentMon.setFormats, newTeam);
           if (movesets.length > 0) {
@@ -148,7 +151,7 @@ function Team({ gen, tier, weight }, ref) {
               movesets[Math.floor(Math.random() * movesets.length)]
             ];
             newDex = [...newDex, list[count].oob.dex_number];
-          }          
+          }
         }
 
         count++;
@@ -163,18 +166,23 @@ function Team({ gen, tier, weight }, ref) {
 
   //filter tier, z, mega options
   const secondaryFilter = (setFormats, newTeam) => {
-    //check for set from tier, otherwise use diff non-uber tier
-    if (setFormats.some(set => set.format === tier)) {
-      setFormats = setFormats.filter(set => set.format === tier);
+    //check if user set exists for heat
+    if (weight === "Heat" && setFormats.some(set => set.format === "User")) {
+      setFormats = setFormats.filter(set => set.format === "User");
     } else {
-      setFormats = setFormats.filter(
-        set => ["OU", "UU", "RU", "NU", "PU", "ZU"].some(tier => tier === set.format)
-      );
+      //check for set from tier, otherwise use diff non-uber tier
+      if (setFormats.some(set => set.format === tier)) {
+        setFormats = setFormats.filter(set => set.format === tier);
+      } else {
+        setFormats = setFormats.filter(set =>
+          ["OU", "UU", "RU", "NU", "PU", "ZU"].some(tier => tier === set.format)
+        );
+      }
     }
 
-    if(setFormats.length > 0) {
+    if (setFormats.length > 0) {
       let movesets = setFormats[0].movesets;
-    
+
       //check for z crystal or mega stone
       const lockedSlots = team.filter((poke, i) => locks[i]);
 
@@ -194,8 +202,7 @@ function Team({ gen, tier, weight }, ref) {
           }
         });
 
-      if (hasZ)
-        movesets = movesets.filter(set => !set.items[0].match(/.*\sZ/));
+      if (hasZ) movesets = movesets.filter(set => !set.items[0].match(/.*\sZ/));
 
       let hasMega =
         newTeam.some(poke => {
@@ -356,8 +363,8 @@ function Team({ gen, tier, weight }, ref) {
         monObj.pokemon = pokemon.slice(0, pokemon.indexOf("(") - 1);
       if (pokemon.includes("(M)"))
         monObj.pokemon = pokemon.slice(0, pokemon.indexOf("(") - 1);
-      if(pokemon.endsWith('-Mega'))
-        monObj.pokemon = pokemon.slice(0, pokemon.indexOf('-Mega'));
+      if (pokemon.endsWith("-Mega"))
+        monObj.pokemon = pokemon.slice(0, pokemon.indexOf("-Mega"));
 
       const ability = mon.filter(str => str.includes("Ability:"));
       if (ability.length > 0) {
@@ -407,8 +414,8 @@ function Team({ gen, tier, weight }, ref) {
     }
 
     //fetch dexnums
-    let url = 'gen/IMPORT/?pokemon=';
-    team.forEach((poke, i) => url += `${poke.pokemon};`);
+    let url = "gen/IMPORT/?pokemon=";
+    team.forEach((poke, i) => (url += `${poke.pokemon};`));
     url = url.slice(0, -1);
 
     const result = await axios(url);
@@ -422,7 +429,7 @@ function Team({ gen, tier, weight }, ref) {
     let team_dex = new Array(6).fill(0);
     dex_numbers.forEach(slot => {
       const index = team.findIndex(poke => poke.pokemon === slot.name);
-      if(index !== -1) {
+      if (index !== -1) {
         team_dex[index] = slot.oob.dex_number;
       }
     });

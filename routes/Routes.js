@@ -75,7 +75,7 @@ const getPokemon = async (schema, tier, weight) => {
       .find({
         formats: weight === "Standard" ? tier : { $in: availTiers },
         oob: { $ne: null },
-        "setFormats.format": { $in: availSets }
+        "setFormats.format": weight !== "Heat" ? { $in: availSets } : { $in: [...availSets, "User"]} //Add user sets on heat
       }, {formats: 1, "oob.dex_number": 1, setFormats: 1})
       .lean();
   }
