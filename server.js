@@ -11,7 +11,7 @@ const app = express();
 const connect = async () => {
   try {
     const mongoDB = config.get('mongoURI');
-    await mongoose.connect('mongodb://localhost:27017/pokemon', {
+    await mongoose.connect(mongoDB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true
