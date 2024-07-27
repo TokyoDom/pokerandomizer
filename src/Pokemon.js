@@ -1,7 +1,7 @@
 import React from "react";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import LockOpenOutlinedIcon from "@material-ui/icons/LockOpenOutlined";
-import CachedOutlinedIcon from "@material-ui/icons/CachedOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import CachedOutlinedIcon from "@mui/icons-material/CachedOutlined";
 import { Spinner } from "reactstrap";
 import "./styles/Pokemon.css";
 

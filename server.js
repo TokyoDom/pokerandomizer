@@ -11,11 +11,7 @@ const app = express();
 const connect = async () => {
   try {
     const mongoDB = config.get('mongoURI');
-    await mongoose.connect(mongoDB, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true
-    });
+    await mongoose.connect(mongoDB);
     console.log('MongoDB connected...');
   } catch (err) { 
     console.log(err);

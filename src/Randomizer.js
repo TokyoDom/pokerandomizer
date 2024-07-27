@@ -1,11 +1,11 @@
 import React, { useState, useRef } from "react";
 import { Form, FormGroup, Input, Button } from "reactstrap";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import Modal from "@material-ui/core/Modal";
-import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
-import CardContent from "@material-ui/core/CardContent";
-import TextField from "@material-ui/core/TextField";
+import Modal from "@mui/material/Modal";
+import Card from "@mui/material/Card";
+import CardHeader from "@mui/material/CardHeader";
+import CardContent from "@mui/material/CardContent";
+import TextField from "@mui/material/TextField";
 import Team from "./Team";
 import "./styles/Randomizer.css";
 
