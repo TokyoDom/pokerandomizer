@@ -27,6 +27,7 @@ const dexSchema = new Schema({
   }]
 });
 
+exports.SVDex = mongoose.model("Dex", dexSchema, "SVDex");
 exports.SSDex = mongoose.model("Dex", dexSchema, "SSDex");
 exports.SMDex = mongoose.model("Dex", dexSchema, "SMDex");
 exports.XYDex = mongoose.model("Dex", dexSchema, "XYDex");

@@ -3,6 +3,7 @@ const router = express.Router();
 
 //Schema
 const {
+  SVDex,
   SSDex,
   SMDex,
   XYDex,
@@ -96,6 +97,12 @@ router.get("/IMPORT/", async (req, res) => {
     return importTeam.indexOf(a.name) - importTeam.indexOf(b.name);
   });
   res.json(pokemon);
+});
+
+router.get("/SV/:tier/:weight", async (req, res) => {
+  const pokemon = await getPokemon(SVDex, req.params.tier, req.params.weight);
+
+  res.json(shuffle(pokemon));
 });
 
 router.get("/SS/:tier/:weight", async (req, res) => {
