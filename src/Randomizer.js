@@ -9,7 +9,7 @@ import TextField from "@mui/material/TextField";
 import Team from "./Team";
 import "./styles/Randomizer.css";
 
-const gens = ["SS", "SM", "XY", "BW", "DP", "RS", "GS", "RB"];
+const gens = ["SV", "SS", "SM", "XY", "BW", "DP", "RS", "GS", "RB"];
 const tiers = [
   { gen: "RB", tiers: ["OU", "UU"] },
   { gen: "GS", tiers: ["OU", "UU", "NU"] },
@@ -18,12 +18,13 @@ const tiers = [
   { gen: "BW", tiers: ["OU", "UU", "RU", "NU", "Uber", "LC"] },
   { gen: "XY", tiers: ["OU", "UU", "RU", "NU", "PU", "Uber", "LC"] },
   { gen: "SM", tiers: ["OU", "UU", "RU", "NU", "PU", "Uber", "LC"] },
-  { gen: "SS", tiers: ["OU", "UU", "RU", "NU", "PU", "Uber", "LC"] }
+  { gen: "SS", tiers: ["OU", "UU", "RU", "NU", "PU", "Uber", "LC"] },
+  { gen: "SV", tiers: ["OU", "UU", "RU", "NU", "PU", "Uber", "LC"] }
 ];
 const weights = ["Standard", "Mixed", "Heat"];
 
 function Randomizer() {
-  const [generation, setGeneration] = useState("SS");
+  const [generation, setGeneration] = useState("SV");
   const [tier, setTier] = useState("OU");
   const [weight, setWeight] = useState("Standard");
 
@@ -135,7 +136,7 @@ function Randomizer() {
           setCopied("");
         }}
       >
-        <Card style={{ overflow: "scroll" }} className="card">
+        <Card style={{ overflow: "scroll", height: 500 }} className="card">
           <CardHeader
             title="Export"
             action={
@@ -169,7 +170,7 @@ function Randomizer() {
           setImpModal(false);
         }}
       >
-        <Card style={{ overflow: "scroll" }} className="card">
+        <Card style={{ overflow: "scroll", height: 500 }} className="card">
           <CardHeader title="Import" action={<Button
               color="dark"
               onClick={e => {

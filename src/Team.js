@@ -32,6 +32,7 @@ const ditto = {
       spe: 31
     }
   ],
+  teratypes: ["Normal"],
   moveslots: [[{ move: "Transform", type: null }]],
   name: "Choice Scarf",
   natures: ["Relaxed"],
@@ -276,9 +277,15 @@ function Team({ gen, tier, weight }, ref) {
         moves += `- ${move}\n`;
       });
 
+      let teratype;
+      if (poke.teratypes && poke.teratypes.length > 0) {
+        teratype = poke.teratypes[0];
+      }
+
       let set = name;
       if (item) set += ` @ ${item}`;
       if (ability) set += `\nAbility: ${ability}`;
+      if (teratype) set += `\nTera Type: ${teratype}`;
       if (evString !== "") set += `\nEVs:${evString}`;
       if (nature) set += `\n${nature} Nature`;
       if (ivString !== "") set += `\nIVs:${ivString}`;
@@ -344,6 +351,7 @@ function Team({ gen, tier, weight }, ref) {
         evconfigs: [],
         items: [],
         ivconfigs: [],
+        teratypes: [],
         moveslots: [],
         natures: [],
         pokemon: ""
@@ -371,6 +379,15 @@ function Team({ gen, tier, weight }, ref) {
         monObj.abilities = [
           ability[0]
             .slice(ability[0].indexOf(":") + 2, ability[0].length)
+            .trim()
+        ];
+      }
+
+      const teratype = mon.filter(str => str.includes("Tera Type:"));
+      if (teratype.length > 0) {
+        monObj.teratypes = [
+          teratype[0]
+            .slice(teratype[0].indexOf(":") + 2, teratype[0].length)
             .trim()
         ];
       }
